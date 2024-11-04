@@ -1,0 +1,29 @@
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+  
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v4
+  
+        - uses: actions/setup-python@v5
+          with:
+            python-version: 3.11
+
+        - run: |
+            pip install -r requirements.txt
+
+        - run: |
+            python main.py
+          env:
+            KEEP_ALIVE: "false"
+            PUBLIC_EMAIL_ADDRESS: ${{ secrets.PUBLIC_EMAIL_ADDRESS }}
+            PUBLIC_EMAIL_PASSWORD: ${{ secrets.PUBLIC_EMAIL_PASSWORD }}
+            PUBLIC_EMAIL_IMAP_HOST: ${{ secrets.PUBLIC_EMAIL_IMAP_HOST }}
+            PUBLIC_EMAIL_SMTP_HOST: ${{ secrets.PUBLIC_EMAIL_SMTP_HOST }}
+            REVIEWER_EMAIL_ADDRESS_LIST: ${{ secrets.REVIEWER_EMAIL_ADDRESS_LIST }}
+            MIN_REVIEW_COUNT: ${{ secrets.MIN_REVIEW_COUNT }}
+  

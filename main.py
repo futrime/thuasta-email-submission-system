@@ -10,7 +10,9 @@ from review_system import ReviewSystem, ReviewSystemConfig
 def main() -> None:
     dotenv.load_dotenv()
 
+    keep_alive = bool(os.getenv("KEEP_ALIVE", "true"))
     logging_level = os.getenv("LOGGING_LEVEL", "INFO")
+
     logging.basicConfig(level=logging_level)
 
     config = ReviewSystemConfig(
@@ -28,6 +30,8 @@ def main() -> None:
 
     while True:
         review_system.run()
+        if not keep_alive:
+            break
         time.sleep(60)
 
 

@@ -20,6 +20,7 @@ def main() -> None:
         reviewer_email_address_list=os.getenv("REVIEWER_EMAIL_ADDRESS_LIST", "").split(
             ","
         ),
+        min_review_count=int(os.getenv("MIN_REVIEW_COUNT", "1")),
     )
 
     review_system = ReviewSystem(config)

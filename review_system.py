@@ -271,7 +271,7 @@ class ReviewSystem:
             review_request_body = f"""<p>请审阅以下投稿并回复：</p>
 <ul>
     <li>输入 /&zwnj;accept 表示通过；</li>
-    <li>否则，拒绝。请将拒绝理由包裹在两个`&zwnj;``之间。</li>
+    <li>否则，拒绝。请将拒绝理由包裹在两个`&zwnj;``之间（三连反引号，类似Markdown代码块）。</li>
 </ul>
 <p>请勿删除主题中的两个"#"号和其间的内容。您的所有回复都不要在本提示中复制内容，否则系统可能无法处理。</p>
 <hr>

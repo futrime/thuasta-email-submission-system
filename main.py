@@ -10,7 +10,7 @@ from review_system import ReviewSystem, ReviewSystemConfig
 def main() -> None:
     dotenv.load_dotenv()
 
-    keep_alive = bool(os.getenv("KEEP_ALIVE", "true"))
+    keep_alive = os.getenv("KEEP_ALIVE", "true").lower() == "true"
     logging_level = os.getenv("LOGGING_LEVEL", "INFO")
 
     logging.basicConfig(level=logging_level)

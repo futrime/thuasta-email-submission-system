@@ -86,7 +86,7 @@ class ReviewSystem:
     def _on_receive_submission(
         self, submission_message: email.message.EmailMessage
     ) -> None:
-        # self._send_review_request(submission_message)
+        self._send_review_request(submission_message)
         self._send_submission_notification(submission_message)
 
     def _on_receive_review(self, message: email.message.EmailMessage) -> None:
@@ -95,33 +95,39 @@ class ReviewSystem:
     def _send_review_request(
         self, submission_message: email.message.EmailMessage
     ) -> None:
-        submission_id = base64.b64encode(submission_message["Message-ID"]).decode()
-        submission_body = submission_message.get_body(("plain"))
+        submission_id = base64.b64encode(
+            submission_message["Message-ID"].encode()
+        ).decode()
+        submission_body = submission_message.get_body()
         submission_body_text = (
             submission_body.get_payload() if submission_body is not None else ""
         )
 
         review_request_message = email.message.EmailMessage()
         review_request_message["From"] = (
-            f"ASTA Weekly Review System <{self.config.email_address}>"
+            f"自动化系学生科协 <{self.config.email_address}>"
         )
         review_request_message["To"] = ", ".join(
             self.config.reviewer_email_address_list
         )
-        review_request_message["Subject"] = (
-            f"ASTA Weekly Submission Review Request (#{submission_id}#)"
-        )
+        review_request_message["Subject"] = f"科协周报审核请求 #{submission_id}#"
 
-        review_request_body = f"""
-Please review the following submission and respond with:
-- /accept to approve
-- Any other response to reject
-DO NOT REMOVE "#{submission_id}#" IN THE SUBJECT.
---------------------------------------------------------------------------------
+        review_request_body = f"""<p>请审阅以下投稿并回复：</p>
+<ul>
+    <li>输入 /accept 表示通过；</li>
+    <li>否则，拒绝。回复的内容将被作为拒绝理由。</li>
+</ul>
+<p>请勿删除主题中的两个"#"号和其间的内容。</p>
+<hr>
+<p><b>From:</b> {submission_message["From"]}<br>
+<b>Sent:</b> {submission_message["Date"]}<br>
+<b>To:</b> {submission_message["To"]}<br>
+<b>Subject:</b> {submission_message["Subject"]}</p>
+
 {submission_body_text}
 """
 
-        review_request_message.set_content(review_request_body)
+        review_request_message.set_content(review_request_body, subtype="html")
 
         # Forward all attachments
         for attachment in submission_message.iter_attachments():
@@ -138,31 +144,36 @@ DO NOT REMOVE "#{submission_id}#" IN THE SUBJECT.
     def _send_submission_notification(
         self, submission_message: email.message.EmailMessage
     ) -> None:
-        submission_from = ReviewSystem._extract_email_address(
-            submission_message["From"]
+        submission_body = submission_message.get_body()
+        submission_body_text = (
+            submission_body.get_payload() if submission_body is not None else ""
         )
-        if submission_from is None:
-            return
 
         submission_notification_message = email.message.EmailMessage()
         submission_notification_message["From"] = (
-            f"ASTA Weekly Review System <{self.config.email_address}>"
+            f"自动化系学生科协 <{self.config.email_address}>"
         )
-        submission_notification_message["To"] = submission_from
-        submission_notification_message["Subject"] = (
-            "Submission is received and will be reviewed."
-        )
-        # submission_notification_message["Reply-To"] = self.config.email_address
+        submission_notification_message["To"] = submission_message["From"]
+        submission_notification_message["Subject"] = "科协周报投稿已收到"
+        submission_notification_message["Reply-To"] = self.config.email_address
         submission_notification_message["In-Reply-To"] = submission_message[
             "Message-ID"
         ]
 
-        submission_notification_body_text = """
-Thank you for your submission. It is received and will be reviewed.
-DO NOT REPLY TO THIS EMAIL. OTHERWISE IT WILL BE TREATED AS A NEWSUBMISSION.
+        submission_notification_body_text = f"""<p>感谢您的投稿，我们将进行审核，并尽快通知结果。</p>
+<p>请勿回复此邮件，否则将被视为新的投稿。</p>
+<hr>
+<p><b>From:</b> {submission_message["From"]}<br>
+<b>Sent:</b> {submission_message["Date"]}<br>
+<b>To:</b> {submission_message["To"]}<br>
+<b>Subject:</b> {submission_message["Subject"]}</p>
+
+{submission_body_text}
 """
 
-        submission_notification_message.set_content(submission_notification_body_text)
+        submission_notification_message.set_content(
+            submission_notification_body_text, subtype="html"
+        )
 
         self.smtp_client.send_message(submission_notification_message)
 
@@ -173,10 +184,10 @@ DO NOT REPLY TO THIS EMAIL. OTHERWISE IT WILL BE TREATED AS A NEWSUBMISSION.
         if email_from is None:
             return None
 
-        if email_from in self.config.reviewer_email_address_list:
-            return EmailCategory.REVIEW
+        if email_from not in self.config.reviewer_email_address_list:
+            return EmailCategory.SUBMISSION
 
-        return EmailCategory.SUBMISSION
+        return EmailCategory.REVIEW
 
     @staticmethod
     def _extract_email_address(text: str) -> Optional[str]:

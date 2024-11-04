@@ -111,7 +111,7 @@ class ReviewSystem:
 
     def _on_receive_review(self, review_message: email.message.EmailMessage) -> None:
         self.logger.info("Processing new review")
-        submission_matcher = re.compile(r"#([\w=]+)#")
+        submission_matcher = re.compile(r"#([A-Za-z0-9+\/=]+)#")
         submission_match = submission_matcher.search(review_message["Subject"])
         if submission_match is None:
             self.logger.error("Could not find submission ID in review subject")

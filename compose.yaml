@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+    environment:
+      - PUBLIC_EMAIL_ADDRESS=${PUBLIC_EMAIL_ADDRESS:?error}
+      - PUBLIC_EMAIL_PASSWORD=${PUBLIC_EMAIL_PASSWORD:?error}
+      - PUBLIC_EMAIL_IMAP_HOST=${PUBLIC_EMAIL_IMAP_HOST:?error}
+      - PUBLIC_EMAIL_SMTP_HOST=${PUBLIC_EMAIL_SMTP_HOST:?error}
+      - REVIEWER_EMAIL_ADDRESS_LIST=${REVIEWER_EMAIL_ADDRESS_LIST:?error}
+      - MIN_REVIEW_COUNT=${MIN_REVIEW_COUNT:?error}
+      - LOG_LEVEL=${LOG_LEVEL:-3}
+    restart: always

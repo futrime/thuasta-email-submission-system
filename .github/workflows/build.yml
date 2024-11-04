@@ -1,0 +1,21 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-agent-python-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/build-push-action@v6
+
+  check-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"

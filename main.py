@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import dotenv
 
@@ -25,7 +26,9 @@ def main() -> None:
 
     review_system = ReviewSystem(config)
 
-    review_system.run()
+    while True:
+        review_system.run()
+        time.sleep(60)
 
 
 if __name__ == "__main__":

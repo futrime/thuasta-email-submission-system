@@ -1,38 +1,74 @@
+"""Main module."""
+
 import logging
 import os
-import time
+from dataclasses import dataclass
+from typing import List
 
 import dotenv
 
-from review_system import ReviewSystem, ReviewSystemConfig
+from review_system import ReviewSystem
+
+
+@dataclass
+class Env:
+    """Environment variables."""
+
+    email_address: str
+    email_password: str
+    imap_host: str
+    smtp_host: str
+    reviewer_email_addresses: List[str]
+    min_reviewers: int
+    is_periodical: bool
+    logging_level: str
+
+
+def load_env() -> Env:
+    """Load environment variables.
+
+    Returns:
+        Environment variables.
+    """
+
+    dotenv.load_dotenv()
+
+    return Env(
+        email_address=os.getenv("EMAIL_ADDRESS", ""),
+        email_password=os.getenv("EMAIL_PASSWORD", ""),
+        imap_host=os.getenv("IMAP_HOST", ""),
+        smtp_host=os.getenv("SMTP_HOST", ""),
+        reviewer_email_addresses=list(
+            map(str.strip, os.getenv("REVIEWER_EMAIL_ADDRESSES", "").splitlines())
+        ),
+        min_reviewers=int(os.getenv("MIN_REVIEWERS", "1")),
+        is_periodical=os.getenv("IS_PERIODICAL", "false").lower() == "true",
+        logging_level=os.getenv("LOGGING_LEVEL", "INFO"),
+    )
 
 
 def main() -> None:
-    dotenv.load_dotenv()
+    """Main function."""
 
-    keep_alive = os.getenv("KEEP_ALIVE", "false").lower() == "true"
-    logging_level = os.getenv("LOGGING_LEVEL", "INFO")
+    env = load_env()
 
-    logging.basicConfig(level=logging_level)
+    logging.basicConfig(level=env.logging_level)
 
-    config = ReviewSystemConfig(
-        email_address=os.getenv("PUBLIC_EMAIL_ADDRESS", ""),
-        email_password=os.getenv("PUBLIC_EMAIL_PASSWORD", ""),
-        email_imap_host=os.getenv("PUBLIC_EMAIL_IMAP_HOST", ""),
-        email_smtp_host=os.getenv("PUBLIC_EMAIL_SMTP_HOST", ""),
-        reviewer_email_address_list=os.getenv("REVIEWER_EMAIL_ADDRESS_LIST", "").split(
-            ","
-        ),
-        min_review_count=int(os.getenv("MIN_REVIEW_COUNT", "3")),
+    config = ReviewSystem.Options(
+        email_address=env.email_address,
+        email_password=env.email_password,
+        imap_host=env.imap_host,
+        smtp_host=env.smtp_host,
+        reviewer_email_addresses=env.reviewer_email_addresses,
+        min_reviewers=env.min_reviewers,
     )
 
     review_system = ReviewSystem(config)
 
-    while True:
+    review_system.run()
+
+    while env.is_periodical:
         review_system.run()
-        if not keep_alive:
-            break
-        time.sleep(60)
 
 
 if __name__ == "__main__":

@@ -187,7 +187,9 @@ class ReviewSystem:
                 review_text = html2text.html2text(review_body_content)
 
                 # Extract only content before "/reject"
-                reject_feedback_match = re.search(r"^(.*?)\/reject", review_text)
+                reject_feedback_match = re.search(
+                    r"^(.*?)\/reject", review_text, re.MULTILINE | re.DOTALL
+                )
                 if reject_feedback_match is None:
                     continue
 
@@ -386,11 +388,8 @@ class ReviewSystem:
         if body_content is None:
             return None
 
-        accept_command_matcher = re.compile(r"\/accept")
-        do_accept = accept_command_matcher.search(body_content) is not None
-
-        reject_command_matcher = re.compile(r"\/reject")
-        do_reject = reject_command_matcher.search(body_content) is not None
+        do_accept = "/accept" in body_content
+        do_reject = "/reject" in body_content
 
         if do_accept and do_reject:
             return None

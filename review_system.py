@@ -213,6 +213,7 @@ class ReviewSystem:
         else:
             feedback_accepted_message = FeedbackAcceptedEmailMessage(
                 to_email_address=submission_from_email_address,
+                submission_message=submission_message,
                 system_email_name=self._config.email_name,
                 system_email_address=self._config.email_address,
             )

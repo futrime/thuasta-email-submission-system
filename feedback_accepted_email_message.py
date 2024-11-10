@@ -19,6 +19,7 @@ class FeedbackAcceptedEmailMessage(email.message.EmailMessage):
     def __init__(
         self,
         to_email_address: str,
+        submission_message: email.message.EmailMessage,
         system_email_name: str,
         system_email_address: str,
     ) -> None:
@@ -26,6 +27,7 @@ class FeedbackAcceptedEmailMessage(email.message.EmailMessage):
 
         self["From"] = f"{system_email_name} <{system_email_address}>"
         self["To"] = to_email_address
+        self["In-Reply-To"] = submission_message["Message-ID"]
         self["Subject"] = "科协投稿评审通知"
 
         self.set_content(BODY_CONTENT, subtype="html")

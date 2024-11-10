@@ -17,7 +17,7 @@ jobs:
             pip install -r requirements.txt
 
         - run: |
-            echo "${{ secrets.ENV }}" > .env
+            echo '${{ secrets.ENV }}' > .env
 
         - run: |
             python main.py

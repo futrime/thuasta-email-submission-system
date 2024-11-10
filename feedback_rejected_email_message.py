@@ -48,7 +48,7 @@ class FeedbackRejectedEmailMessage(email.message.EmailMessage):
             BODY_CONTENT_TEMPLATE.format(
                 review_feedback="\n".join(
                     [
-                        html.escape(REVIEW_FEEDBACK_TEMPLATE.format(content=content))
+                        REVIEW_FEEDBACK_TEMPLATE.format(content=html.escape(content))
                         for content in review_feedbacks
                     ]
                 ),

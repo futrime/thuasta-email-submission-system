@@ -11,9 +11,9 @@ BODY_CONTENT_TEMPLATE = """\
   <body style="user-select: none;">
     <p>请评审投稿并按照以下要求回复：</p>
     <ul>
-      <li>输入 /&zwnj;accept 表示通过；</li>
-      <li>输入 /&zwnj;reject 表示拒绝，/&zwnj;reject 前的所有内容会被视为拒绝理由并反馈给投稿人。</li>
-      <li>如果既没有输入 /&zwnj;accept 也没有输入 /&zwnj;reject ，则评审无效。</li>
+      <li>输入 /accept 表示通过；</li>
+      <li>输入 /reject 表示拒绝，/reject 前的所有内容会被视为拒绝理由并反馈给投稿人。</li>
+      <li>如果既没有输入 /accept 也没有输入 /reject ，则评审无效。</li>
       <li>为了实现指令匹配，本要求的文本进行了特殊处理，请不要复制本要求的内容。</li>
     </ul>
     <h3>投稿内容：</h3>
@@ -47,8 +47,10 @@ class ReviewRequestEmailMessage(email.message.EmailMessage):
                 submission_subject=html.escape(submission_message["Subject"]),
                 submission_from=html.escape(submission_message["From"]),
                 submission_date=html.escape(submission_message["Date"]),
-                submission_content=extract_body_content(submission_message) or "",
-            ),
+                submission_content=(extract_body_content(submission_message) or ""),
+            )
+            .replace("/accept", "/&zwnj;accept")
+            .replace("/reject", "/&zwnj;reject"),
             subtype="html",
         )
 

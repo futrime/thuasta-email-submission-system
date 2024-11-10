@@ -14,6 +14,7 @@ from review_system import ReviewSystem
 class Env:
     """Environment variables."""
 
+    email_name: str
     email_address: str
     email_password: str
     imap_host: str
@@ -31,9 +32,10 @@ def load_env() -> Env:
         Environment variables.
     """
 
-    dotenv.load_dotenv()
+    dotenv.load_dotenv(override=True)
 
     return Env(
+        email_name=os.getenv("EMAIL_NAME", "自动化系学生科协"),
         email_address=os.getenv("EMAIL_ADDRESS", ""),
         email_password=os.getenv("EMAIL_PASSWORD", ""),
         imap_host=os.getenv("IMAP_HOST", ""),
@@ -55,6 +57,7 @@ def main() -> None:
     logging.basicConfig(level=env.logging_level)
 
     config = ReviewSystem.Options(
+        email_name=env.email_name,
         email_address=env.email_address,
         email_password=env.email_password,
         imap_host=env.imap_host,

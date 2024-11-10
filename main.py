@@ -41,7 +41,10 @@ def load_env() -> Env:
         imap_host=os.getenv("IMAP_HOST", ""),
         smtp_host=os.getenv("SMTP_HOST", ""),
         reviewer_email_addresses=list(
-            map(str.strip, os.getenv("REVIEWER_EMAIL_ADDRESSES", "").splitlines())
+            filter(
+                None,
+                map(str.strip, os.getenv("REVIEWER_EMAIL_ADDRESSES", "").splitlines()),
+            )
         ),
         min_reviewers=int(os.getenv("MIN_REVIEWERS", "1")),
         is_periodical=os.getenv("IS_PERIODICAL", "false").lower() == "true",
